@@ -5,9 +5,16 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  background :  #1d1f21
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Quand on passe sur les boutons, on veut que la souris soit en forme de pointeur */
+button {
+  cursor: pointer;
 }
