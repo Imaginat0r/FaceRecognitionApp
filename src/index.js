@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import 'tachyons';
 
 //Installation et importation de tachyons pour le css
-
+// Installation de particles-js pour les effets de fond
 ReactDOM.render(
   <React.StrictMode>
     <App />
