@@ -8,12 +8,12 @@ import Register from './components/Register/Register'
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Particles from 'react-particles-js';
 import './App.css';
-
 import Clarifai from 'clarifai' 
+import Key from './API_Key.js'
 
-const app = new Clarifai.App({
-  apiKey: 'bc316471ceb64c05a67421253c62b34a'
-})
+
+
+const app = Key;
 
 const particlesOptions = {
          particles : {
