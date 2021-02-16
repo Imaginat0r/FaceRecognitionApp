@@ -11,8 +11,6 @@ import './App.css';
 import Clarifai from 'clarifai' 
 import Key from './API_Key.js'
 
-
-
 const app = Key;
 
 const particlesOptions = {
@@ -46,11 +44,29 @@ class App extends React.Component {
           box: {},
           // Le route permet de localiser où nous sommes sur la page
           route: 'signin',
-          isSignedIn : false
-
+          isSignedIn : false,
+          user: {
+            id: '',
+            name: '',
+            email: '',
+            entries: 0,
+            joined: ''
+          }
       }
   } 
 
+
+  
+  loadUser = (data) => {
+    this.setState({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined
+    }})
+  }
+  
 
   calculateFaceLocation = (data) => {
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -81,9 +97,26 @@ class App extends React.Component {
     app.models
               .predict(Clarifai.FACE_DETECT_MODEL,
                     this.state.input)
-                    .then( response => this.displayFaceBox(this.calculateFaceLocation(response)))
-                    .catch( err => console.log(err));
+                    .then( response => {
+                      if (response) {
+                        fetch('http://localhost:3000/image', {
+                          method: 'put',
+                          //Il faut préciser le type de la requête
+                          headers: {'Content-Type': 'application/json'},
+                          body: JSON.stringify({
+                              //Le serveur n'a besoin que de l'ID de l'utilisateur
+                              id:  this.state.user.id
+                          })
 
+                        })
+                        .then(response => response.json()) //On déchiffre la réponse
+                        .then(count => {
+                          //On actualise seulement la propriété entries de l'objet user
+                          this.setState(Object.assign(this.state.user, {entries: count}))
+                        })      
+                    }
+                      this.displayFaceBox(this.calculateFaceLocation(response))
+                  }).catch( err => console.log(err));
   }
 
   onRouteChange = (route) => {
@@ -92,13 +125,13 @@ class App extends React.Component {
     } else if (route === 'home') {
         this.setState({isSignedIn: true})
     }
-
-    this.setState({route: route});
+    
+    this.setState({route: route});    
   }
 
   render() {
 
-    const {isSignedIn, imageUrl, route, box} = this.state;
+    const {isSignedIn, imageUrl, route, box, user} = this.state;
 
     return (
       <div className="App">
@@ -110,16 +143,16 @@ class App extends React.Component {
         {route === 'home' ?    
                 <div>
                     <Logo/>
-                    <Rank/>
+                    <Rank name = {user.name} entries = {user.entries} />
                     <ImageLinkForm onInputChange = {this.onInputChange} 
                               onButtonSubmit = {this.onButtonSubmit} />
                     <FaceRecognition box = {box} imageUrl = {imageUrl}/>
                 </div>             
               : (
                 route === 'signin' ?              
-               <SignIn onRouteChange = {this.onRouteChange} />
+               <SignIn loadUser={this.loadUser} onRouteChange = {this.onRouteChange} />
                :
-               <Register onRouteChange = {this.onRouteChange} />
+               <Register loadUser={this.loadUser} onRouteChange = {this.onRouteChange} />
                )
 
            }
