@@ -36,7 +36,7 @@ class SignIn extends React.Component {
         }) 
           .then(response => response.json())  //D'abord on récupère la réponse
           .then(user => {
-                if (user) {
+                if (user.id) { //On vérifie si l'utilisateur a un ID
                     this.props.loadUser(user);
                     this.props.onRouteChange('home');
                 }

@@ -130,7 +130,7 @@ class App extends React.Component {
   }
 
   render() {
-
+    
     const {isSignedIn, imageUrl, route, box, user} = this.state;
 
     return (
