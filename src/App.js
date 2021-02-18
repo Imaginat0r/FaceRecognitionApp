@@ -8,10 +8,7 @@ import Register from './components/Register/Register'
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Particles from 'react-particles-js';
 import './App.css';
-import Clarifai from 'clarifai' 
-import Key from './API_Key.js'
 
-const app = Key;
 
 const particlesOptions = {
          particles : {
@@ -31,6 +28,24 @@ const particlesOptions = {
            }
          }                    
 }
+
+
+const initialState = {
+  input: '',
+          imageUrl: '',
+          box: {},
+          // Le route permet de localiser où nous sommes sur la page
+          route: 'signin',
+          isSignedIn : false,
+          user: {
+            id: '',
+            name: '',
+            email: '',
+            entries: 0,
+            joined: ''
+          }
+}
+
 
 
 class App extends React.Component {
@@ -94,9 +109,18 @@ class App extends React.Component {
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
     
-    app.models
-              .predict(Clarifai.FACE_DETECT_MODEL,
-                    this.state.input)
+    //La clé API est sur le Back-End --> On récupère la réponse de Clarifai depuis
+    //un post du serveur
+                  fetch('http://localhost:3000/imageurl', {
+                    method: 'post',
+                    //Il faut préciser le type de la requête
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        //Le serveur n'a besoin que de l'ID de l'utilisateur
+                        input:  this.state.input
+                    })
+                  })
+                  .then(response => response.json())
                     .then( response => {
                       if (response) {
                         fetch('http://localhost:3000/image', {
@@ -113,7 +137,8 @@ class App extends React.Component {
                         .then(count => {
                           //On actualise seulement la propriété entries de l'objet user
                           this.setState(Object.assign(this.state.user, {entries: count}))
-                        })      
+                        })
+                        .catch(console.log)      
                     }
                       this.displayFaceBox(this.calculateFaceLocation(response))
                   }).catch( err => console.log(err));
@@ -121,7 +146,7 @@ class App extends React.Component {
 
   onRouteChange = (route) => {
     if (route === 'signout'){
-       this.setState({isSignedIn: false})   
+       this.setState(initialState); //On remet l'état initial quand on se désinscrit
     } else if (route === 'home') {
         this.setState({isSignedIn: true})
     }

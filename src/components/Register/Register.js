@@ -11,7 +11,6 @@ class Register extends React.Component {
             password: '',
             name: ''
         }
-
     }
 
 
@@ -43,7 +42,8 @@ onRegister = () => {
         }) 
           .then(response => response.json())  //D'abord on récupère la réponse
           .then(user => {
-                if (user) {
+              //On reçoit un objet utilisateur avec un ID
+                if (user.id) {
                     this.props.loadUser(user);
                     this.props.onRouteChange('home');
                 }
